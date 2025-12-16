@@ -15,9 +15,40 @@ import ReloadIcon from "../icons/ReloadIcon";
 import FileIcon from "../icons/FileIcon";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
+import { Spinner } from "@/components/ui/spinner";
 
 export function IngredientRecognition() {
   const [preview, setPreview] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleGenerateButton = async () => {
+    setLoading(true);
+
+    if (!preview) return;
+    try {
+      const res = await axios.post(
+        "http://localhost:999/ingredient",
+        { text: preview },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("response from backend:", res.data);
+    } catch (err) {
+      console.error("ingredient error", err);
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+  const handleClickRefreshButton = () => {
+    setPreview("");
+  };
+
   return (
     <Card className="border-none">
       <CardHeader>
@@ -28,7 +59,10 @@ export function IngredientRecognition() {
               Ingredient recognition
             </CardTitle>
           </div>
-          <Button className="cursor-pointer bg-white border transition-all duration-300 hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95 group">
+          <Button
+            className="cursor-pointer bg-white border transition-all duration-300 hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95 group"
+            onClick={handleClickRefreshButton}
+          >
             <ReloadIcon />
           </Button>
         </div>
@@ -39,6 +73,7 @@ export function IngredientRecognition() {
       <CardContent className="grid gap-6">
         <div className="grid w-full items-center gap-3">
           <Textarea
+            value={preview}
             placeholder="Орц тодорхойлох."
             onChange={(e) => {
               const value = e.target.value;
@@ -50,6 +85,7 @@ export function IngredientRecognition() {
       <CardFooter className="flex justify-end">
         <Button
           disabled={!preview}
+          onClick={handleGenerateButton}
           className="cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 group"
         >
           Generate
@@ -64,8 +100,12 @@ export function IngredientRecognition() {
             </CardTitle>
           </div>
         </div>
-        <CardDescription>
-          <Input placeholder="First, enter your text to recognize an ingredients." />
+        <CardDescription className="flex items-center justify-center">
+          {loading ? (
+            <Spinner className="size-8" />
+          ) : (
+            <Input placeholder="First, enter your text to recognize an ingredients." />
+          )}
         </CardDescription>
       </CardHeader>
     </Card>

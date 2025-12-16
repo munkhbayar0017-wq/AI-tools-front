@@ -16,11 +16,43 @@ import FileIcon from "../icons/FileIcon";
 import { useState } from "react";
 import Image from "next/image";
 import { TrashIcon } from "lucide-react";
+import axios from "axios";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ImageAnalysis() {
   const [preview, setPreview] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleDeleteFile = () => {
+    setPreview("");
+    setFile(null);
+  };
+  const handleGenerateButton = async () => {
+    setLoading(true);
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await axios.post(
+        "http://localhost:999/file/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("response from backend:", res.data);
+    } catch (err) {
+      console.error("upload error", err);
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+  const handleClickRefreshButton = () => {
     setPreview("");
   };
   return (
@@ -33,7 +65,10 @@ export function ImageAnalysis() {
               Image analysis
             </CardTitle>
           </div>
-          <Button className="cursor-pointer bg-white border transition-all duration-300 hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95 group">
+          <Button
+            onClick={handleClickRefreshButton}
+            className="cursor-pointer bg-white border transition-all duration-300 hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95 group"
+          >
             <ReloadIcon />
           </Button>
         </div>
@@ -65,9 +100,10 @@ export function ImageAnalysis() {
               type="file"
               accept="image/*"
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setPreview(URL.createObjectURL(file));
+                const selectedFile = e.target.files?.[0];
+                if (selectedFile) {
+                  setPreview(URL.createObjectURL(selectedFile));
+                  setFile(selectedFile);
                 }
               }}
             />
@@ -77,6 +113,7 @@ export function ImageAnalysis() {
       <CardFooter className="flex justify-end">
         <Button
           disabled={!preview}
+          onClick={handleGenerateButton}
           className="cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 group"
         >
           Generate
@@ -91,8 +128,12 @@ export function ImageAnalysis() {
             </CardTitle>
           </div>
         </div>
-        <CardDescription>
-          <Input placeholder="First, enter your image to recognize an ingredients." />
+        <CardDescription className="flex items-center justify-center">
+          {loading ? (
+            <Spinner className="size-8" />
+          ) : (
+            <Input placeholder="First, enter your image to recognize an ingredients." />
+          )}
         </CardDescription>
       </CardHeader>
     </Card>

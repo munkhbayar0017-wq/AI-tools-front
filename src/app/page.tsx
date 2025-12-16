@@ -7,7 +7,7 @@ import Chat from "./_components/Chat";
 
 export default function Home() {
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-start">
+    <div className="relative w-screen h-screen flex flex-col items-center justify-start">
       <Header />
       <div className="flex w-145 h-screen flex-col gap-6 py-6">
         <Tabs defaultValue="Image analysis" className="flex flex-col gap-6">
@@ -36,7 +36,7 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </div>
-      <Chat />
+      <Chat className="fixed right-6 bottom-6" />
     </div>
   );
 }
