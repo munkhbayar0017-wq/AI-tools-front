@@ -13,16 +13,51 @@ import { Input } from "@/components/ui/input";
 import GeminiIcon from "../icons/GeminiIcon";
 import ReloadIcon from "../icons/ReloadIcon";
 import FileIcon from "../icons/FileIcon";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { TrashIcon } from "lucide-react";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
 
+type TypingTextProps = {
+  text: string;
+  speed?: number;
+};
+
+export function TypingText({ text, speed = 20 }: TypingTextProps) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayed((prev) => prev + text[i]);
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+  return <p className="whitespace-pre-wrap">{displayed}</p>;
+}
+
 export function ImageAnalysis() {
   const [preview, setPreview] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState({ reason: "", content: "" });
+  const getFirstSentence = (text?: string) => {
+    if (!text) return "";
+
+    const cleaned = text
+      .replace(/\s*undefined\s*/gi, "") // undefined-ийг бүр мөсөн арилгана
+      .trim();
+
+    const firstSentence = cleaned.split(".")[0].trim();
+
+    return firstSentence ? firstSentence + "." : "";
+  };
 
   const handleDeleteFile = () => {
     setPreview("");
@@ -45,6 +80,11 @@ export function ImageAnalysis() {
       );
 
       console.log("response from backend:", res.data);
+      console.log("result:", result);
+      setResult({
+        reason: res.data.description.reasoning_content,
+        content: res.data.description.content,
+      });
     } catch (err) {
       console.error("upload error", err);
     }
@@ -54,6 +94,7 @@ export function ImageAnalysis() {
   };
   const handleClickRefreshButton = () => {
     setPreview("");
+    setResult({ reason: "", content: "" });
   };
   return (
     <Card className="border-none">
@@ -128,11 +169,22 @@ export function ImageAnalysis() {
             </CardTitle>
           </div>
         </div>
-        <CardDescription className="flex items-center justify-center">
+        <CardDescription className="flex items-center justify-start">
           {loading ? (
             <Spinner className="size-8" />
+          ) : result.content ? (
+            <div className="max-w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
+              <TypingText
+                text={`--Reason:\n${
+                  result.reason ?? ""
+                }\n\nConclusion:\n${getFirstSentence(result.content ?? "")}`}
+                speed={20}
+              />
+            </div>
           ) : (
-            <Input placeholder="First, enter your image to recognize an ingredients." />
+            <p className="text-sm text-muted-foreground">
+              First, upload your image and click Generate to see AI analysis.
+            </p>
           )}
         </CardDescription>
       </CardHeader>

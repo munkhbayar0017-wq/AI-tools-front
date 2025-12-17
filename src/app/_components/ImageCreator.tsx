@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import GeminiIcon from "../icons/GeminiIcon";
 import ReloadIcon from "../icons/ReloadIcon";
 import { useState } from "react";
@@ -17,10 +17,12 @@ import { Textarea } from "@/components/ui/textarea";
 import ImageIcon from "../icons/ImageIcon";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
+import Image from "next/image";
 
 export function ImageCreator() {
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [imageURL, setImageURL] = useState<string>("");
 
   const handleGenerateButton = async () => {
     setLoading(true);
@@ -38,6 +40,7 @@ export function ImageCreator() {
       );
 
       console.log("response from backend:", res.data);
+      setImageURL(res.data.image);
     } catch (err) {
       console.error("ingredient error", err);
     }
@@ -47,6 +50,7 @@ export function ImageCreator() {
   };
   const handleClickRefreshButton = () => {
     setPreview("");
+    setImageURL("");
   };
   return (
     <Card className="border-none">
@@ -99,11 +103,21 @@ export function ImageCreator() {
             </CardTitle>
           </div>
         </div>
-        <CardDescription className="flex items-center justify-center">
+        <CardDescription className="flex items-center justify-start">
           {loading ? (
             <Spinner className="size-8" />
+          ) : imageURL ? (
+            <Image
+              src={imageURL}
+              alt="imageURL"
+              width={360}
+              height={360}
+              className="rounded-lg object-cover"
+            />
           ) : (
-            <Input placeholder="First, enter your text to generate an image." />
+            <div className="text-sm text-muted-foreground">
+              First, enter your text to generate an image.
+            </div>
           )}
         </CardDescription>
       </CardHeader>
