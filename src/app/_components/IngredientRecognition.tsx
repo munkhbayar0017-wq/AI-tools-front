@@ -9,44 +9,71 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+
 import GeminiIcon from "../icons/GeminiIcon";
 import ReloadIcon from "../icons/ReloadIcon";
 import FileIcon from "../icons/FileIcon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
 
+type TypingTextProps = {
+  text: string;
+  speed?: number;
+};
+
+export function TypingText({ text, speed = 20 }: TypingTextProps) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayed((prev) => prev + text[i]);
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+  return <p className="whitespace-pre-wrap">{displayed}</p>;
+}
+
 export function IngredientRecognition() {
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<string>("");
 
   const handleGenerateButton = async () => {
-    setLoading(true);
-
     if (!preview) return;
+
+    setLoading(true);
     try {
       const res = await axios.post(
         "http://localhost:999/ingredient",
         { text: preview },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
+      console.log("lalalal", res.data.response.content);
 
-      console.log("response from backend:", res.data);
+      setResult(
+        typeof res.data.response.content === "string"
+          ? res.data.response.content
+          : JSON.stringify(res.data.response.content, null, 2)
+      );
     } catch (err) {
       console.error("ingredient error", err);
-    }
-    setTimeout(() => {
+      setResult("Something went wrong.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
+
   const handleClickRefreshButton = () => {
     setPreview("");
+    setResult("");
   };
 
   return (
@@ -103,8 +130,14 @@ export function IngredientRecognition() {
         <CardDescription className="flex items-center justify-center">
           {loading ? (
             <Spinner className="size-8" />
+          ) : result ? (
+            <div className="w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
+              <TypingText text={result} speed={20} />
+            </div>
           ) : (
-            <Input placeholder="First, enter your text to recognize an ingredients." />
+            <p className="text-sm text-muted-foreground">
+              First, enter text and click Generate to see AI analysis.
+            </p>
           )}
         </CardDescription>
       </CardHeader>

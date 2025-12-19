@@ -173,7 +173,7 @@ export function ImageAnalysis() {
           {loading ? (
             <Spinner className="size-8" />
           ) : result.content ? (
-            <div className="max-w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
+            <div className="w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
               <TypingText
                 text={`--Reason:\n${
                   result.reason ?? ""
