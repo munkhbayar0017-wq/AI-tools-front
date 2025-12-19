@@ -13,34 +13,12 @@ import { Input } from "@/components/ui/input";
 import GeminiIcon from "../icons/GeminiIcon";
 import ReloadIcon from "../icons/ReloadIcon";
 import FileIcon from "../icons/FileIcon";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { TrashIcon } from "lucide-react";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
-
-type TypingTextProps = {
-  text: string;
-  speed?: number;
-};
-
-export function TypingText({ text, speed = 20 }: TypingTextProps) {
-  const [displayed, setDisplayed] = useState("");
-  useEffect(() => {
-    setDisplayed("");
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayed((prev) => prev + text[i]);
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-  return <p className="whitespace-pre-wrap">{displayed}</p>;
-}
+import { TypingText } from "./TypingText";
 
 export function ImageAnalysis() {
   const [preview, setPreview] = useState<string>("");
