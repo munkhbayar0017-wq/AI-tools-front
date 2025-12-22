@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
 import GeminiIcon from "../icons/GeminiIcon";
 import ReloadIcon from "../icons/ReloadIcon";
 import { useState } from "react";
@@ -39,7 +38,6 @@ export function ImageCreator() {
         }
       );
 
-      console.log("response from backend:", res.data);
       setImageURL(res.data.image);
     } catch (err) {
       console.error("ingredient error", err);

@@ -78,8 +78,6 @@ export default function Chat({ className }: FunctionProps) {
           content: res.data.resChat.content,
         },
       ]);
-
-      console.log("response from backend:", res.data);
     } catch (err) {
       console.error("chat.tsx error", err);
 

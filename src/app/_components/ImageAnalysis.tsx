@@ -17,25 +17,28 @@ import { useState } from "react";
 import Image from "next/image";
 import { TrashIcon } from "lucide-react";
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
-import { TypingText } from "./TypingText";
-
+import { motion } from "framer-motion";
+const ThinkingDots = () => {
+  return (
+    <div className="flex items-center gap-1 text-gray-500">
+      <span>Thinking</span>
+      {[0, 0.2, 0.4].map((delay, i) => (
+        <motion.span
+          key={i}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ repeat: Infinity, duration: 1, delay }}
+        >
+          .
+        </motion.span>
+      ))}
+    </div>
+  );
+};
 export function ImageAnalysis() {
   const [preview, setPreview] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState({ reason: "", content: "" });
-  const getFirstSentence = (text?: string) => {
-    if (!text) return "";
-
-    const cleaned = text
-      .replace(/\s*undefined\s*/gi, "") // undefined-ийг бүр мөсөн арилгана
-      .trim();
-
-    const firstSentence = cleaned.split(".")[0].trim();
-
-    return firstSentence ? firstSentence + "." : "";
-  };
 
   const handleDeleteFile = () => {
     setPreview("");
@@ -57,8 +60,6 @@ export function ImageAnalysis() {
         }
       );
 
-      console.log("response from backend:", res.data);
-      console.log("result:", result);
       setResult({
         reason: res.data.description.reasoning_content,
         content: res.data.description.content,
@@ -149,15 +150,15 @@ export function ImageAnalysis() {
         </div>
         <CardDescription className="flex items-center justify-start">
           {loading ? (
-            <Spinner className="size-8" />
+            <div className="w-35 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+              <ThinkingDots />
+            </div>
           ) : result.content ? (
-            <div className="w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
-              <TypingText
-                text={`--Reason:\n${
-                  result.reason ?? ""
-                }\n\nConclusion:\n${getFirstSentence(result.content ?? "")}`}
-                speed={20}
-              />
+            <div className="w-full overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
+              <div>Reason:</div>
+              {result.reason ?? ""}
+              <div>Conclusion:</div>
+              {result.content ?? ""}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">

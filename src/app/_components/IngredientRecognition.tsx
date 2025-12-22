@@ -16,8 +16,7 @@ import FileIcon from "../icons/FileIcon";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
-import { TypingText } from "./TypingText";
+import { motion } from "framer-motion";
 
 export function IngredientRecognition() {
   const [preview, setPreview] = useState<string>("");
@@ -34,19 +33,30 @@ export function IngredientRecognition() {
         { text: preview },
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log("lalalal", res.data.response.content);
-
-      setResult(
-        typeof res.data.response.content === "string"
-          ? res.data.response.content
-          : JSON.stringify(res.data.response.content, null, 2)
-      );
+      setResult(res.data.response);
     } catch (err) {
       console.error("ingredient error", err);
       setResult("Something went wrong.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const ThinkingDots = () => {
+    return (
+      <div className="flex items-center gap-1 text-gray-500">
+        <span>Thinking</span>
+        {[0, 0.2, 0.4].map((delay, i) => (
+          <motion.span
+            key={i}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ repeat: Infinity, duration: 1, delay }}
+          >
+            .
+          </motion.span>
+        ))}
+      </div>
+    );
   };
 
   const handleClickRefreshButton = () => {
@@ -105,12 +115,14 @@ export function IngredientRecognition() {
             </CardTitle>
           </div>
         </div>
-        <CardDescription className="flex items-center justify-center">
+        <CardDescription className="flex items-center justify-start">
           {loading ? (
-            <Spinner className="size-8" />
+            <div className="w-35 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+              <ThinkingDots />
+            </div>
           ) : result ? (
-            <div className="w-full h-115 overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
-              <TypingText text={result} speed={20} />
+            <div className="w-full overflow-scroll rounded-xl border p-5 text-sm text-gray-900 leading-relaxed shadow-md font-sans">
+              {result}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
