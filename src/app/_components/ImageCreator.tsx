@@ -15,15 +15,31 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import ImageIcon from "../icons/ImageIcon";
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
-
+import { motion } from "framer-motion";
+const ThinkingDots = () => {
+  return (
+    <div className="flex items-center gap-1 text-gray-500">
+      <span>Thinking</span>
+      {[0, 0.2, 0.4].map((delay, i) => (
+        <motion.span
+          key={i}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ repeat: Infinity, duration: 1, delay }}
+        >
+          .
+        </motion.span>
+      ))}
+    </div>
+  );
+};
 export function ImageCreator() {
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [imageURL, setImageURL] = useState<string>("");
 
   const handleGenerateButton = async () => {
+    if (loading || !preview) return;
     setLoading(true);
 
     if (!preview) return;
@@ -85,11 +101,11 @@ export function ImageCreator() {
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button
-          disabled={!preview}
+          disabled={!preview || loading}
           onClick={handleGenerateButton}
           className="cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 group"
         >
-          Generate
+          {loading ? "Generating..." : "Generate"}
         </Button>
       </CardFooter>
       <CardHeader>
@@ -103,7 +119,9 @@ export function ImageCreator() {
         </div>
         <CardDescription className="flex items-center justify-start">
           {loading ? (
-            <Spinner className="size-8" />
+            <div className="w-35 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+              <ThinkingDots />
+            </div>
           ) : imageURL ? (
             <Image
               src={imageURL}

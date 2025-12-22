@@ -24,6 +24,7 @@ export function IngredientRecognition() {
   const [result, setResult] = useState<string>("");
 
   const handleGenerateButton = async () => {
+    if (loading || !preview) return;
     if (!preview) return;
 
     setLoading(true);
@@ -99,11 +100,11 @@ export function IngredientRecognition() {
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button
-          disabled={!preview}
+          disabled={!preview || loading}
           onClick={handleGenerateButton}
           className="cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 group"
         >
-          Generate
+          {loading ? "Generating..." : "Generate"}
         </Button>
       </CardFooter>
       <CardHeader>
