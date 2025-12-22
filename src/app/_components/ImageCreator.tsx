@@ -29,7 +29,7 @@ export function ImageCreator() {
     if (!preview) return;
     try {
       const res = await axios.post(
-        "http://localhost:999/create",
+        "https://ai-tools-back.onrender.com/create",
         { text: preview },
         {
           headers: {

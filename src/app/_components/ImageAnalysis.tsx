@@ -51,7 +51,7 @@ export function ImageAnalysis() {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        "http://localhost:999/file/upload",
+        "https://ai-tools-back.onrender.com/file/upload",
         formData,
         {
           headers: {

@@ -29,7 +29,7 @@ export function IngredientRecognition() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:999/ingredient",
+        "https://ai-tools-back.onrender.com/ingredient",
         { text: preview },
         { headers: { "Content-Type": "application/json" } }
       );

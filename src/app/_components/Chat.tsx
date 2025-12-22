@@ -62,7 +62,7 @@ export default function Chat({ className }: FunctionProps) {
 
     try {
       const res = await axios.post(
-        "http://localhost:999/chat",
+        "https://ai-tools-back.onrender.com/chat",
         { text: userMessage },
         {
           headers: {
